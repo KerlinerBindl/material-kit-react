@@ -17,6 +17,7 @@ import {
   AppCurrentSubject,
   AppConversionRates,
 } from '../sections/@dashboard/app';
+import account from "../_mock/account";
 
 // ----------------------------------------------------------------------
 
@@ -26,12 +27,12 @@ export default function DashboardAppPage() {
   return (
     <>
       <Helmet>
-        <title> Dashboard | Minimal UI </title>
+        <title> Tool </title>
       </Helmet>
 
       <Container maxWidth="xl">
         <Typography variant="h4" sx={{ mb: 5 }}>
-          Hi, Welcome back
+          Hi {account.displayName}, Welcome back
         </Typography>
 
         <Grid container spacing={3}>
