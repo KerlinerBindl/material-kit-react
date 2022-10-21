@@ -5,6 +5,7 @@ const http = require('http');
 const fs = require('fs');
 const axios = require('axios');
 const openwebApi = require('./services/axios');
+const Devices = require('./devices/devices');
 
 
 const PORT = process.env.PORT || 3000;
@@ -41,12 +42,22 @@ const getDataTest = async () => {
     await axiosTest
       .get('/devices')
       .then((response) => {
-        devices.push(response.data[0]);
-        console.log(devices[0].id);
-        getDatapointsFromDevice(devices[0].id);
+        // devices.push(response.data[0]);
+        console.log(response.data);
+        const {data} = response;
+        data.map((element) => {
+          if(!devices.find((item) => item.id === element.id)) {
+            devices.push([ { device : new Devices(response.data[0].type, response.data[0].id, response.data[0].name) } ],
+            );
+            console.log(devices[0][0].device.id);
+            getDatapointsFromDevice(devices[0][0].device.id);
+          }
+        });
+        
+        // getDatapointsFromDevice(response.data[0].id);
       })
       .catch((error) => {
-        console.log(error.response);
+        console.log(error.response.statusText);
       });
 }
 
@@ -54,11 +65,21 @@ const getDatapointsFromDevice = async (deviceId) => {
   await axiosTest
     .get(`/devices/${deviceId}/datapoints`)
     .then((response) => {
-      console.log(response.data[0].id);
-      getSingleDatapoint(response.data[0].id);
+      
+      const datapoints = [];
+      datapoints.push({ datapoints: response.data});
+      // devices[0].push(datapoints);
+      const id = devices.findIndex((element) => element.find((el) => el.device.id === deviceId));
+      console.log(id);
+      devices[id].push( ...datapoints );
+      // datapoints.forEach((element) => {
+      //   console.log(element);
+
+      // })
+      // getSingleDatapoint(response.data[0].id);
     })
     .catch((error) => {
-      console.log(error.response);
+      console.log(error.response.status);
     });
 };
 
@@ -106,6 +127,11 @@ app.get('/test', (req, res) => {
     getDataTest();
     res.sendStatus(200);
 })
+
+app.get('/data', (req, res) => {
+  
+  res.send(devices);
+});
 
 
 app.post('/credentials', (req, res) => {
